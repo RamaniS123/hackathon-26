@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+/* Kid-friendly classroom palette: soft sky, sunny yellow, coral, leaf green */
+:root {
+  --bg: #eaf6ff;
+  --bg-elevated: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-inset: #fff8e8;
+  --border: #c5e0f5;
+  --border-strong: #8ec8ea;
+  --text: #1a3a5c;
+  --text-muted: #4a6d8c;
+  --text-faint: #7a9bb8;
+  --mint: #1faa7a;
+  --mint-dim: rgba(31, 170, 122, 0.14);
+  --mint-glow: rgba(31, 170, 122, 0.35);
+  --amber: #e8910f;
+  --sunny: #ffc94a;
+  --coral: #ff6b4a;
+  --danger: #e04545;
+  --sky: #3b9de0;
+  --focus: #3b9de0;
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background:
+    radial-gradient(ellipse 70% 45% at 10% 0%, rgba(255, 201, 74, 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 10%, rgba(59, 157, 224, 0.22), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(31, 170, 122, 0.12), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.panel {
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--bg-panel);
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--sky) 18%, transparent),
+    0 8px 24px rgba(26, 58, 92, 0.06);
+}
+
+.panel-live {
+  border-color: color-mix(in srgb, var(--mint) 55%, var(--border));
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--mint) 25%, transparent),
+    0 0 28px -6px var(--mint-glow);
+}
+
+.mode-pill-mock {
+  background: #fff3c4;
+  color: #b36b00;
+  border: 2px solid #ffc94a;
+}
+
+.mode-pill-live {
+  background: #d8f8e8;
+  color: #0d7a52;
+  border: 2px solid #3ecf8e;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #4ecf9a 0%, #1faa7a 100%);
+  color: #ffffff;
+  border: 2px solid #168a60;
+  box-shadow: 0 3px 0 #168a60;
+  font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #168a60;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--text);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 2px 0 var(--border-strong);
+  font-weight: 600;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--sky);
+  box-shadow: 0 2px 0 var(--sky);
+}
+
+.btn-warn {
+  background: linear-gradient(180deg, #ff9a7a 0%, #ff6b4a 100%);
+  color: #ffffff;
+  border: 2px solid #e04f30;
+  box-shadow: 0 3px 0 #e04f30;
+  font-weight: 600;
+}
+
+.btn-warn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.seg-track {
+  background: #dff0fb;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+}
+
+.seg-active {
+  background: #ffffff;
+  color: var(--text);
+  box-shadow: 0 2px 0 rgba(59, 157, 224, 0.35);
+  border-radius: 999px;
+}
+
+.spanish-block {
+  background: linear-gradient(135deg, #e3faf0 0%, #d4f5ff 100%);
+  border: 2px solid #7ad4b0;
+}
+
+.english-block {
+  background: #fff8e8;
+  border: 2px solid #ffe08a;
+}
+
+@keyframes companion-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes companion-listen {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes companion-react {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes companion-charge {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes mint-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
