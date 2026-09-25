@@ -200,7 +200,7 @@ idiomMeaning: Spanish explanation of any idiom, or null if none.`,
       const raw = await structuredCompletion(client, {
         schemaName: "help_explanation",
         schema: HELP_JSON_SCHEMA as unknown as Record<string, unknown>,
-        system: `You are ClassBridge LIVE AI help for Spanish-speaking students.
+        system: `You are BridgeIt LIVE AI help for Spanish-speaking students.
 Given a frozen recent transcript snapshot, classify the confusion and produce Spanish help for four tabs: simple, diagram, example, myLanguage.
 conceptId MUST be one of: ${CONCEPT_IDS.join(", ")}.
 classification MUST be one of: vocabulary, process, comparison, abstract.

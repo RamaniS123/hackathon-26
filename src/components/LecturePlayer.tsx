@@ -54,23 +54,23 @@ export function LecturePlayer({
     currentIndex < 0 ? [] : done ? LESSON : LESSON.slice(0, activeIndex + 1);
 
   return (
-    <section className="panel flex h-full min-h-[280px] flex-col p-4 sm:min-h-[320px]">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Lecture · scripted English
+    <section className="panel flex h-full min-h-[300px] flex-col p-5 sm:min-h-[340px] sm:p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-bold text-[var(--text)]">
+          Listen to the lesson
         </h2>
-        <span className="font-mono text-xs text-[var(--text-faint)]">
+        <span className="rounded-full bg-[#dff0fb] px-3 py-1 text-sm font-semibold text-[var(--sky)]">
           {formatMs(totalElapsed)} / {formatMs(totalMs)}
         </span>
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-3">
         {!playing ? (
           <button
             type="button"
             onClick={onPlay}
             disabled={done || helpLocked}
-            className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+            className="btn-primary rounded-xl px-5 py-2.5 text-base disabled:opacity-40"
           >
             Play
           </button>
@@ -78,7 +78,7 @@ export function LecturePlayer({
           <button
             type="button"
             onClick={onPause}
-            className="btn-secondary rounded-md px-3 py-1.5 text-sm font-medium"
+            className="btn-secondary rounded-xl px-5 py-2.5 text-base"
           >
             Pause
           </button>
@@ -87,7 +87,7 @@ export function LecturePlayer({
           type="button"
           onClick={onNext}
           disabled={done || helpLocked}
-          className="btn-secondary rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+          className="btn-secondary rounded-xl px-5 py-2.5 text-base disabled:opacity-40"
           title={
             helpLocked
               ? "Paused while help is generating — snapshot stays frozen"
@@ -99,28 +99,27 @@ export function LecturePlayer({
         <button
           type="button"
           onClick={onRestart}
-          className="btn-secondary rounded-md px-3 py-1.5 text-sm font-medium"
+          className="btn-secondary rounded-xl px-5 py-2.5 text-base"
         >
           Restart
         </button>
       </div>
 
       {helpLocked && (
-        <p className="mb-3 text-xs text-[var(--mint)]">
-          Lecture controls paused while help is in flight (frozen snapshot
-          protected).
+        <p className="mb-3 text-sm text-[var(--mint)]">
+          Holding the lesson while we get your help ready…
         </p>
       )}
 
       {current && !done && (
-        <div className="english-block mb-3 rounded-lg p-3">
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
-            Current · {current.id}
+        <div className="english-block mb-4 rounded-2xl p-4">
+          <p className="mb-1 text-sm font-bold text-[var(--amber)]">
+            Teacher says
           </p>
-          <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+          <p className="text-lg font-medium leading-relaxed text-[var(--text)]">
             {current.english}
           </p>
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--border)]">
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--border)]">
             <div
               className="h-full rounded-full bg-[var(--mint)] transition-[width] duration-100 motion-reduce:transition-none"
               style={{
@@ -132,14 +131,14 @@ export function LecturePlayer({
       )}
 
       {done && (
-        <p className="mb-3 rounded-lg border border-[rgba(110,231,197,0.3)] bg-[var(--mint-dim)] px-3 py-2 text-sm text-[var(--mint)]">
-          Lecture complete. Use Restart to replay.
+        <p className="mb-4 rounded-2xl border-2 border-[#3ecf8e] bg-[#d8f8e8] px-4 py-3 text-base text-[#0d7a52]">
+          Lesson finished! Restart anytime, or jump to Help / Practice.
         </p>
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
-          Rolling transcript
+        <p className="mb-2 text-sm font-bold text-[var(--text-muted)]">
+          What you&apos;ve heard so far
         </p>
         <ul className="space-y-2">
           {visible.map((s, i) => {
@@ -147,22 +146,19 @@ export function LecturePlayer({
             return (
               <li
                 key={s.id}
-                className={`rounded-md border px-2.5 py-2 text-sm leading-snug ${
+                className={`rounded-xl border-2 px-3 py-2.5 text-base leading-snug ${
                   isCurrent
-                    ? "border-[rgba(110,231,197,0.4)] bg-[var(--mint-dim)] text-[var(--text)]"
-                    : "border-[var(--border)] bg-[var(--bg-inset)] text-[var(--text-muted)]"
+                    ? "border-[rgba(31,170,122,0.45)] bg-[var(--mint-dim)] text-[var(--text)]"
+                    : "border-[var(--border)] bg-white text-[var(--text-muted)]"
                 }`}
               >
-                <span className="mr-2 font-mono text-[10px] text-[var(--text-faint)]">
-                  {s.id}
-                </span>
                 {s.english}
               </li>
             );
           })}
           {visible.length === 0 && (
-            <li className="text-sm text-[var(--text-muted)]">
-              Press Play or Next to start the scripted lecture.
+            <li className="text-base text-[var(--text-muted)]">
+              Press Play or Next to start.
             </li>
           )}
         </ul>

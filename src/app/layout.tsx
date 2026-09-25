@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ClassBridge",
+  title: "BridgeIt",
   description:
     "Contextual lecture explanations for multilingual students — hackathon MVP",
 };

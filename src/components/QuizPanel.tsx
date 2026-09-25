@@ -67,9 +67,7 @@ function QuizInner({
     return (
       <section className={`panel p-4 ${mode === "live" ? "panel-live" : ""}`}>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-            Quiz
-          </h2>
+        <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
           <ModeBadge mode={mode} size="sm" />
         </div>
         <p className="text-sm text-[var(--text)]">
@@ -87,14 +85,12 @@ function QuizInner({
   }
 
   return (
-    <section className={`panel p-4 ${mode === "live" ? "panel-live" : ""}`}>
+    <section className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Quiz
-        </h2>
+        <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
         <div className="flex items-center gap-2">
           <ModeBadge mode={mode} size="sm" />
-          <span className="text-xs text-[var(--text-faint)]">
+          <span className="rounded-full bg-[#dff0fb] px-3 py-1 text-sm font-semibold text-[var(--sky)]">
             {index + 1} / {questions.length}
           </span>
         </div>
@@ -102,10 +98,7 @@ function QuizInner({
 
       {q && (
         <>
-          <p className="mb-1 font-mono text-[10px] text-[var(--text-faint)]">
-            source event: {q.eventId}
-          </p>
-          <p className="mb-3 text-sm font-medium leading-relaxed text-[var(--text)]">
+          <p className="mb-3 text-lg font-semibold leading-relaxed text-[var(--text)]">
             {q.prompt}
           </p>
           <ul className="mb-3 space-y-2">
@@ -280,14 +273,12 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
     return (
       <section className="panel p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-            Quiz
-          </h2>
+        <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
           <ModeBadge mode={mode} size="sm" />
         </div>
-        <p className="text-sm text-[var(--text-muted)]">
-          Empty confusion log — request help at least once. The quiz is built
-          only from logged concepts for this mode.
+        <p className="text-base text-[var(--text-muted)]">
+          Ask for help at least once first — practice questions come from what
+          confused you.
         </p>
       </section>
     );
@@ -298,13 +289,11 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
       return (
         <section className="panel panel-live p-4">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-              Quiz
-            </h2>
+            <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
             <ModeBadge mode="live" size="sm" />
           </div>
-          <p className="text-sm text-[var(--mint)] motion-safe:animate-[mint-pulse_1.4s_ease-in-out_infinite]">
-            Generating Spanish quiz from your LIVE confusion log…
+          <p className="text-base text-[var(--mint)] motion-safe:animate-[mint-pulse_1.4s_ease-in-out_infinite]">
+            Building your practice questions…
           </p>
         </section>
       );
@@ -313,13 +302,11 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
       return (
         <section className="panel border-[rgba(240,160,160,0.4)] p-4">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-              Quiz
-            </h2>
+            <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
             <ModeBadge mode="live" size="sm" />
           </div>
-          <p className="text-sm text-[var(--danger)]" role="alert">
-            LIVE AI error: {error}
+          <p className="text-base text-[var(--danger)]" role="alert">
+            Oops — LIVE AI error: {error}
           </p>
           <p className="mt-2 text-xs text-[var(--text-faint)]">
             Mock quiz is not shown while LIVE AI is selected.

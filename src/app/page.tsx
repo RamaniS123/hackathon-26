@@ -35,6 +35,10 @@ export default function Home() {
   const [view, setView] = useState<AppView>("student");
   const [mode, setMode] = useState<Mode>("mock");
   const [liveConfigured, setLiveConfigured] = useState<boolean | null>(null);
+  const [studentStep, setStudentStep] = useState<
+    "listen" | "help" | "quiz"
+  >("listen");
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -255,6 +259,8 @@ export default function Home() {
     setEventsByMode({ mock: [], live: [] });
     setMode("mock");
     setView("student");
+    setStudentStep("listen");
+    setDemoOpen(false);
     setPlaying(false);
     setCurrentIndex(-1);
     setElapsedInSentence(0);
@@ -311,6 +317,7 @@ export default function Home() {
     setHelpError(null);
     setCompanionOverride("reacting");
     setPlaying(false);
+    setStudentStep("help");
     window.setTimeout(() => {
       setCompanionOverride((s) => (s === "reacting" ? "listening" : s));
       helpBusyRef.current = false;
@@ -365,6 +372,7 @@ export default function Home() {
       appendEvent(event);
       setActiveExplanation(savedExplanation);
       setCompanionOverride("reacting");
+      setStudentStep("help");
       window.setTimeout(() => {
         setCompanionOverride((s) => (s === "reacting" ? "charged" : s));
       }, 1200);
@@ -426,33 +434,35 @@ export default function Home() {
     <div className="relative flex min-h-full flex-1 flex-col text-[var(--text)]">
       <Companion state={companionState} corner />
 
-      <header className="border-b-2 border-[var(--border)] bg-white/90 px-3 py-3 backdrop-blur-sm sm:px-4">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
+      <header className="border-b-2 border-[var(--border)] bg-white/90 px-3 py-4 backdrop-blur-sm sm:px-4">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold tracking-tight text-[var(--text)] sm:text-2xl">
-              ClassBridge
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
+              BridgeIt
             </h1>
-            <p className="text-sm font-medium text-[var(--text-muted)]">
-              {LESSON_TITLE} · friendly Spanish help while you learn
+            <p className="text-base font-medium text-[var(--text-muted)]">
+              {LESSON_TITLE}
             </p>
           </div>
-
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border-2 border-[var(--border-strong)] bg-[#dff0fb] px-2.5 py-1 text-xs font-bold text-[var(--sky)]">
-              Language: Spanish
+            <span className="rounded-full border-2 border-[var(--border-strong)] bg-[#dff0fb] px-3 py-1.5 text-sm font-bold text-[var(--sky)]">
+              Spanish
             </span>
-            <ModeBadge mode={mode} />
+            <ModeBadge mode={mode} size="sm" />
           </div>
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 px-3 py-4 pb-28 sm:px-4 sm:pb-24">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <nav className="seg-track flex gap-1 rounded-lg p-1" aria-label="View">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-3 py-4 pb-28 sm:px-4 sm:pb-24">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <nav
+            className="seg-track flex gap-1 rounded-full p-1.5"
+            aria-label="Who is using this"
+          >
             <button
               type="button"
               onClick={() => setView("student")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              className={`rounded-full px-4 py-2 text-base font-bold transition ${
                 view === "student"
                   ? "seg-active"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -463,7 +473,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setView("teacher")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              className={`rounded-full px-4 py-2 text-base font-bold transition ${
                 view === "teacher"
                   ? "seg-active"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -473,113 +483,190 @@ export default function Home() {
             </button>
           </nav>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="seg-track flex gap-1 rounded-lg p-1" aria-label="Mode">
-              <button
-                type="button"
-                onClick={() => switchMode("mock")}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                  mode === "mock"
-                    ? "seg-active"
-                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                Mock Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode("live")}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                  mode === "live"
-                    ? "seg-active"
-                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                }`}
-              >
-                Live AI
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={presenterReset}
-              className="btn-secondary rounded-md px-3 py-1.5 text-sm font-medium"
-              title="Clear logs, caches, and return to Mock Demo"
-            >
-              Presenter reset
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setDemoOpen((o) => !o)}
+            className="text-sm font-semibold text-[var(--text-faint)] underline decoration-dotted underline-offset-2 hover:text-[var(--text-muted)]"
+            aria-expanded={demoOpen}
+          >
+            {demoOpen ? "Hide demo settings" : "Demo settings"}
+          </button>
         </div>
 
-        <p className="rounded-2xl border-2 border-[var(--border)] bg-white px-3 py-2 text-xs text-[var(--text-muted)] sm:text-sm">
-          Demo note: this is a <strong className="text-[var(--text)]">scripted</strong>{" "}
-          practice lesson (not a live classroom). Mode:{" "}
-          <strong className="text-[var(--text)]">
-            {mode === "mock" ? "MOCK DEMO (practice fixtures)" : "LIVE AI (real model help)"}
-          </strong>
-          .
-        </p>
-
-        {mode === "live" && liveConfigured === false && (
-          <p className="rounded-2xl border-2 border-[#ffc94a] bg-[#fff3c4] px-3 py-2 text-sm text-[#b36b00]">
-            LIVE AI is on, but{" "}
-            <code className="font-mono">OPENAI_API_KEY</code> is missing.
-            Errors stay visible — we never pretend mock is live. Use{" "}
-            <strong>MOCK DEMO</strong> for a smooth presentation.
-          </p>
-        )}
-        {mode === "live" && liveConfigured === true && (
-          <p className="rounded-2xl border-2 border-[#3ecf8e] bg-[#d8f8e8] px-3 py-2 text-sm text-[#0d7a52]">
-            LIVE AI is on — explanations and quizzes come from the real OpenAI
-            route. If something fails, you&apos;ll see a clear error.
-          </p>
+        {demoOpen && (
+          <div className="panel space-y-3 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <ModeBadge mode={mode} />
+              <div className="seg-track flex gap-1 rounded-full p-1" aria-label="Mode">
+                <button
+                  type="button"
+                  onClick={() => switchMode("mock")}
+                  className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+                    mode === "mock"
+                      ? "seg-active"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  Mock Demo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode("live")}
+                  className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+                    mode === "live"
+                      ? "seg-active"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  Live AI
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={presenterReset}
+                className="btn-secondary rounded-xl px-3 py-1.5 text-sm font-bold"
+              >
+                Presenter reset
+              </button>
+            </div>
+            <p className="text-sm text-[var(--text-muted)]">
+              Scripted practice lesson (not a live classroom). Mode:{" "}
+              <strong className="text-[var(--text)]">
+                {mode === "mock" ? "MOCK DEMO" : "LIVE AI"}
+              </strong>
+              .
+            </p>
+            {mode === "live" && liveConfigured === false && (
+              <p className="rounded-xl border-2 border-[#ffc94a] bg-[#fff3c4] px-3 py-2 text-sm text-[#b36b00]">
+                LIVE AI needs <code className="font-mono">OPENAI_API_KEY</code>{" "}
+                in .env.local. Errors never silently use mock.
+              </p>
+            )}
+            {mode === "live" && liveConfigured === true && (
+              <p className="rounded-xl border-2 border-[#3ecf8e] bg-[#d8f8e8] px-3 py-2 text-sm text-[#0d7a52]">
+                LIVE AI is connected.
+              </p>
+            )}
+          </div>
         )}
 
         {view === "student" ? (
-          <div className="grid flex-1 gap-4 lg:grid-cols-2">
-            <LecturePlayer
-              currentIndex={currentIndex}
-              playing={playing}
-              elapsedInSentence={elapsedInSentence}
-              helpLocked={helpLocked}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              onNext={handleNext}
-              onRestart={handleRestart}
-            />
+          <>
+            <nav
+              className="seg-track grid grid-cols-3 gap-1 rounded-2xl p-1.5"
+              aria-label="Student steps"
+            >
+              {(
+                [
+                  { id: "listen" as const, label: "1. Listen" },
+                  { id: "help" as const, label: "2. Help" },
+                  { id: "quiz" as const, label: "3. Practice" },
+                ] as const
+              ).map((step) => (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => setStudentStep(step.id)}
+                  className={`rounded-xl px-2 py-2.5 text-sm font-bold transition sm:text-base ${
+                    studentStep === step.id
+                      ? "seg-active"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  {step.label}
+                </button>
+              ))}
+            </nav>
 
-            <div className="flex flex-col gap-4">
-              <ExplanationPanel
-                sentence={currentIndex < 0 ? null : currentSentence}
-                mode={mode}
-                liveData={liveSentenceData}
-                loading={mode === "live" && explainLoading}
-                error={mode === "live" ? explainError : null}
-              />
-              <HelpPanel
-                mode={mode}
-                canRequest={currentIndex >= 0 && !helpLoading && !helpBusy}
-                loading={helpLoading}
-                error={helpError}
-                activeExplanation={activeExplanation}
-                frozenSnapshot={frozenSnapshot}
-                explanationKey={
-                  events.length > 0 ? events[events.length - 1].id : "none"
-                }
-                onConfused={() => {
-                  setCompanionOverride("listening");
-                  submitHelp("confused");
-                }}
-                onAsk={(q) => {
-                  setCompanionOverride("listening");
-                  submitHelp("question", q);
-                }}
-                onTabChange={() => setCompanionOverride("reacting")}
-              />
-            </div>
+            {studentStep === "listen" && (
+              <div className="flex flex-col gap-4">
+                <LecturePlayer
+                  currentIndex={currentIndex}
+                  playing={playing}
+                  elapsedInSentence={elapsedInSentence}
+                  helpLocked={helpLocked}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onNext={handleNext}
+                  onRestart={handleRestart}
+                />
+                <ExplanationPanel
+                  sentence={currentIndex < 0 ? null : currentSentence}
+                  mode={mode}
+                  liveData={liveSentenceData}
+                  loading={mode === "live" && explainLoading}
+                  error={mode === "live" ? explainError : null}
+                />
+                <button
+                  type="button"
+                  onClick={() => setStudentStep("help")}
+                  className="btn-primary rounded-xl px-5 py-3 text-base"
+                >
+                  Need help? Continue →
+                </button>
+              </div>
+            )}
 
-            <div className="lg:col-span-2">
-              <QuizPanel events={events} mode={mode} />
-            </div>
-          </div>
+            {studentStep === "help" && (
+              <div className="flex flex-col gap-4">
+                <HelpPanel
+                  mode={mode}
+                  canRequest={currentIndex >= 0 && !helpLoading && !helpBusy}
+                  loading={helpLoading}
+                  error={helpError}
+                  activeExplanation={activeExplanation}
+                  frozenSnapshot={frozenSnapshot}
+                  explanationKey={
+                    events.length > 0 ? events[events.length - 1].id : "none"
+                  }
+                  onConfused={() => {
+                    setCompanionOverride("listening");
+                    submitHelp("confused");
+                  }}
+                  onAsk={(q) => {
+                    setCompanionOverride("listening");
+                    submitHelp("question", q);
+                  }}
+                  onTabChange={() => setCompanionOverride("reacting")}
+                />
+                {currentIndex < 0 && (
+                  <p className="rounded-2xl border-2 border-[#ffc94a] bg-[#fff3c4] px-4 py-3 text-base text-[#b36b00]">
+                    Start on <strong>Listen</strong> first, then come back here
+                    if something is confusing.
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStudentStep("listen")}
+                    className="btn-secondary rounded-xl px-5 py-3 text-base"
+                  >
+                    ← Back to Listen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStudentStep("quiz")}
+                    className="btn-primary rounded-xl px-5 py-3 text-base"
+                  >
+                    Practice what you learned →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {studentStep === "quiz" && (
+              <div className="flex flex-col gap-4">
+                <QuizPanel events={events} mode={mode} />
+                <button
+                  type="button"
+                  onClick={() => setStudentStep("help")}
+                  className="btn-secondary rounded-xl px-5 py-3 text-base"
+                >
+                  ← Back to Help
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <TeacherSummary
             events={events}

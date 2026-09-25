@@ -72,7 +72,7 @@ function HelpTabs({
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => selectTab(t.id)}
-            className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+            className={`rounded-md px-3 py-2 text-sm font-bold transition ${
               tab === t.id
                 ? "seg-active"
                 : "text-[var(--text-muted)] hover:text-[var(--text)]"
@@ -120,26 +120,24 @@ export function HelpPanel({
   }
 
   return (
-    <section className={`panel p-4 ${mode === "live" ? "panel-live" : ""}`}>
+    <section className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}>
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Help
-        </h2>
+        <h2 className="text-lg font-bold text-[var(--text)]">Need help?</h2>
         <ModeBadge mode={mode} size="sm" />
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-3">
         <button
           type="button"
           disabled={!canRequest || loading}
           onClick={onConfused}
-          className="btn-warn rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+          className="btn-warn rounded-xl px-5 py-2.5 text-base disabled:opacity-40"
         >
           I&apos;m confused
         </button>
       </div>
 
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <input
           type="text"
           value={question}
@@ -148,14 +146,14 @@ export function HelpPanel({
             if (e.key === "Enter") submitQuestion();
           }}
           disabled={!canRequest || loading}
-          placeholder="Escribe tu pregunta…"
-          className="min-w-0 flex-1 rounded-xl border-2 border-[var(--border-strong)] bg-white px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--text-faint)] disabled:opacity-40"
+          placeholder="Or type your question…"
+          className="min-w-0 flex-1 rounded-xl border-2 border-[var(--border-strong)] bg-white px-4 py-3 text-base text-[var(--text)] placeholder:text-[var(--text-faint)] disabled:opacity-40"
         />
         <button
           type="button"
           disabled={!canRequest || loading || !question.trim()}
           onClick={submitQuestion}
-          className="btn-primary rounded-md px-3 py-2 text-sm font-medium disabled:opacity-40"
+          className="btn-primary rounded-xl px-5 py-3 text-base disabled:opacity-40"
         >
           Ask
         </button>
@@ -201,9 +199,9 @@ export function HelpPanel({
       ) : (
         !loading &&
         !error && (
-          <p className="text-sm text-[var(--text-muted)]">
-            Tap “I&apos;m confused” or ask a question for Spanish tabs: Simple,
-            Diagram, Example, My Language.
+          <p className="text-base text-[var(--text-muted)]">
+            Tap “I&apos;m confused” or ask a question. We&apos;ll show Simple,
+            Diagram, Example, and My Language tabs in Spanish.
           </p>
         )
       )}

@@ -20,8 +20,8 @@ export function TeacherSummary({ events, mode, onClear }: TeacherSummaryProps) {
       }`}
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Teacher Summary
+        <h2 className="text-lg font-bold text-[var(--text)]">
+          Teacher overview
         </h2>
         <div className="flex items-center gap-2">
           <ModeBadge mode={mode} size="sm" />

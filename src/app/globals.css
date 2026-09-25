@@ -39,6 +39,8 @@ body {
     var(--bg);
   color: var(--text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
 }
 
 :focus-visible {

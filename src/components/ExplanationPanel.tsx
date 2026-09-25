@@ -13,6 +13,7 @@ interface ExplanationPanelProps {
   liveData: SentenceExplanationData | null;
   loading?: boolean;
   error?: string | null;
+  compactModeBadge?: boolean;
 }
 
 export function ExplanationPanel({
@@ -21,16 +22,16 @@ export function ExplanationPanel({
   liveData,
   loading,
   error,
+  compactModeBadge = true,
 }: ExplanationPanelProps) {
   if (!sentence) {
     return (
-      <section className="panel p-4">
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Explanation
+      <section className="panel p-5 sm:p-6">
+        <h2 className="mb-2 text-lg font-bold text-[var(--text)]">
+          What it means
         </h2>
-        <p className="text-sm text-[var(--text-muted)]">
-          Contextual Spanish appears beside each English sentence as the lecture
-          advances.
+        <p className="text-base text-[var(--text-muted)]">
+          When the lesson plays, you&apos;ll see a Spanish explanation here.
         </p>
       </section>
     );
@@ -50,61 +51,56 @@ export function ExplanationPanel({
         : null;
 
   return (
-    <section className={`panel p-4 ${mode === "live" ? "panel-live" : ""}`}>
+    <section
+      className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}
+    >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-          Explanation · {sentence.id}
-        </h2>
-        <ModeBadge mode={mode} size="sm" />
+        <h2 className="text-lg font-bold text-[var(--text)]">What it means</h2>
+        {compactModeBadge && <ModeBadge mode={mode} size="sm" />}
       </div>
 
-      {/* Spanish first / prominent */}
-      <div className="spanish-block mb-3 rounded-lg p-3 sm:p-4">
-        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--mint)]">
-          Español · significado
-        </p>
+      <div className="spanish-block mb-4 rounded-2xl p-4 sm:p-5">
+        <p className="mb-2 text-sm font-bold text-[var(--mint)]">In Spanish</p>
         {loading && (
-          <p className="text-sm text-[var(--mint)] motion-safe:animate-[mint-pulse_1.4s_ease-in-out_infinite]">
-            Generating LIVE AI explanation…
+          <p className="text-base text-[var(--mint)] motion-safe:animate-[mint-pulse_1.4s_ease-in-out_infinite]">
+            Getting your explanation…
           </p>
         )}
         {error && !loading && (
-          <p className="text-sm text-[var(--danger)]" role="alert">
-            LIVE AI error: {error}
+          <p className="text-base text-[var(--danger)]" role="alert">
+            Oops — LIVE AI error: {error}
           </p>
         )}
         {!loading && !error && display && (
-          <p className="text-base font-medium leading-relaxed text-[var(--text)] sm:text-lg">
+          <p className="text-xl font-semibold leading-relaxed text-[var(--text)] sm:text-[1.35rem]">
             {display.spanish}
           </p>
         )}
         {!loading && !error && !display && mode === "live" && (
-          <p className="text-sm text-[var(--text-muted)]">
-            Waiting for LIVE AI explanation…
+          <p className="text-base text-[var(--text-muted)]">
+            Waiting for explanation…
           </p>
         )}
       </div>
 
-      <div className="english-block rounded-lg p-3">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
-          English · original (kept visible)
-        </p>
-        <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+      <details className="english-block rounded-2xl p-4">
+        <summary className="cursor-pointer text-sm font-bold text-[var(--amber)]">
+          Show English (original)
+        </summary>
+        <p className="mt-2 text-base leading-relaxed text-[var(--text-muted)]">
           {sentence.english}
         </p>
-      </div>
+      </details>
 
       {display && !loading && !error && display.keyTerms.length > 0 && (
-        <div className="mt-3">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
-            Key terms
+        <div className="mt-4">
+          <p className="mb-2 text-sm font-bold text-[var(--text-muted)]">
+            Key words
           </p>
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {display.keyTerms.map((t) => (
-              <li key={t.english} className="text-sm text-[var(--text)]">
-                <span className="font-semibold text-[var(--mint)]">
-                  {t.english}
-                </span>
+              <li key={t.english} className="text-base text-[var(--text)]">
+                <span className="font-bold text-[var(--mint)]">{t.english}</span>
                 <span className="text-[var(--text-faint)]"> — </span>
                 <span className="text-[var(--text-muted)]">
                   {t.spanishDefinition}
@@ -116,22 +112,19 @@ export function ExplanationPanel({
       )}
 
       {display?.idiomMeaning && !loading && !error && (
-        <div className="mt-3 rounded-lg border border-[rgba(232,184,109,0.35)] bg-[rgba(232,184,109,0.1)] p-3">
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--amber)]">
-            Idiom meaning
+        <div className="mt-4 rounded-2xl border-2 border-[#ffc94a] bg-[#fff3c4] p-4">
+          <p className="mb-1 text-sm font-bold text-[#b36b00]">
+            Tricky phrase
           </p>
-          <p className="text-sm leading-relaxed text-[var(--text)]">
+          <p className="text-base leading-relaxed text-[var(--text)]">
             {display.idiomMeaning}
           </p>
         </div>
       )}
 
       {display?.backreferenceSentenceId && !loading && !error && (
-        <p className="mt-2 text-xs text-[var(--text-muted)]">
-          Backreference →{" "}
-          <span className="font-mono text-[var(--mint)]">
-            {display.backreferenceSentenceId}
-          </span>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">
+          This points back to something earlier in the lesson.
         </p>
       )}
     </section>
