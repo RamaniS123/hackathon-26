@@ -363,7 +363,9 @@ Reply in ${targetLanguage ?? "Spanish"} only (field: explanation). Be clear and 
     const raw = await structuredCompletion(client, {
       schemaName: "confusion_quiz",
       schema: QUIZ_JSON_SCHEMA as unknown as Record<string, unknown>,
-      system: `Generate exactly 3 Spanish multiple-choice quiz questions based ONLY on the student's logged confusion events.
+      system: `Generate 1–3 Spanish multiple-choice quiz questions based ONLY on the student's logged confusion events.
+Create ONE question per distinct concept/event — never repeat the same question.
+If there is only one logged concept, return exactly 1 question.
 Each question MUST set eventId to one of the provided event ids (link to that source event).
 Questions and options in Spanish. correctIndex is 0–3.
 conceptId must match the linked event's concept when possible.

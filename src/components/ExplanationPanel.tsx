@@ -1,6 +1,5 @@
 "use client";
 
-import { ModeBadge } from "@/components/ModeBadge";
 import type {
   Mode,
   Sentence,
@@ -13,7 +12,6 @@ interface ExplanationPanelProps {
   liveData: SentenceExplanationData | null;
   loading?: boolean;
   error?: string | null;
-  compactModeBadge?: boolean;
 }
 
 export function ExplanationPanel({
@@ -22,7 +20,6 @@ export function ExplanationPanel({
   liveData,
   loading,
   error,
-  compactModeBadge = true,
 }: ExplanationPanelProps) {
   if (!sentence) {
     return (
@@ -54,10 +51,7 @@ export function ExplanationPanel({
     <section
       className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}
     >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-[var(--text)]">What it means</h2>
-        {compactModeBadge && <ModeBadge mode={mode} size="sm" />}
-      </div>
+      <h2 className="mb-3 text-lg font-bold text-[var(--text)]">What it means</h2>
 
       <div className="spanish-block mb-4 rounded-2xl p-4 sm:p-5">
         <p className="mb-2 text-sm font-bold text-[var(--mint)]">In Spanish</p>

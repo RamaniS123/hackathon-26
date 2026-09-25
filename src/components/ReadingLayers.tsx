@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ModeBadge } from "@/components/ModeBadge";
 import {
   LiveAiError,
   fetchParagraphContext,
@@ -124,10 +123,7 @@ export function ReadingLayers({ mode }: ReadingLayersProps) {
     <section
       className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}
     >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-[var(--text)]">Reading layers</h2>
-        <ModeBadge mode={mode} size="sm" />
-      </div>
+      <h2 className="mb-3 text-lg font-bold text-[var(--text)]">Reading layers</h2>
 
       <p className="mb-4 text-base text-[var(--text-muted)]">
         Paste an article. Switch layers: original English, a simpler Spanish

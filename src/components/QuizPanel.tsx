@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { DiagramView } from "@/components/DiagramView";
-import { ModeBadge } from "@/components/ModeBadge";
 import { fetchLiveQuiz, LiveAiError } from "@/lib/aiClient";
 import { buildQuizFromEvents } from "@/lib/mockHelp";
 import type {
@@ -27,6 +26,7 @@ function QuizInner({
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [showCorrect, setShowCorrect] = useState(false);
   const [hintTab, setHintTab] = useState<ExplanationTab>("simple");
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -37,6 +37,7 @@ function QuizInner({
     setIndex(0);
     setSelected(null);
     setShowHint(false);
+    setShowCorrect(false);
     setScore(0);
     setFinished(false);
   }
@@ -46,15 +47,21 @@ function QuizInner({
     if (selected === q.correctIndex) {
       setScore((s) => s + 1);
       setShowHint(false);
-      if (index + 1 >= questions.length) {
-        setFinished(true);
-      } else {
-        setIndex((i) => i + 1);
-        setSelected(null);
-      }
+      setShowCorrect(true);
     } else {
+      setShowCorrect(false);
       setShowHint(true);
       setHintTab(q.savedExplanation.initialTab);
+    }
+  }
+
+  function goNext() {
+    setShowCorrect(false);
+    setSelected(null);
+    if (index + 1 >= questions.length) {
+      setFinished(true);
+    } else {
+      setIndex((i) => i + 1);
     }
   }
 
@@ -66,10 +73,7 @@ function QuizInner({
   if (finished) {
     return (
       <section className={`panel p-4 ${mode === "live" ? "panel-live" : ""}`}>
-        <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
-          <ModeBadge mode={mode} size="sm" />
-        </div>
+        <h2 className="mb-2 text-lg font-bold text-[var(--text)]">Practice</h2>
         <p className="text-sm text-[var(--text)]">
           Done — {score} / {questions.length} correct.
         </p>
@@ -88,12 +92,9 @@ function QuizInner({
     <section className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
-        <div className="flex items-center gap-2">
-          <ModeBadge mode={mode} size="sm" />
-          <span className="rounded-full bg-[#dff0fb] px-3 py-1 text-sm font-semibold text-[var(--sky)]">
-            {index + 1} / {questions.length}
-          </span>
-        </div>
+        <span className="rounded-full bg-[#dff0fb] px-3 py-1 text-sm font-semibold text-[var(--sky)]">
+          {index + 1} / {questions.length}
+        </span>
       </div>
 
       {q && (
@@ -107,15 +108,18 @@ function QuizInner({
                 <label
                   className={`flex cursor-pointer items-start gap-2 rounded-md border px-2.5 py-2 text-sm ${
                     selected === i
-                      ? "border-[rgba(110,231,197,0.5)] bg-[var(--mint-dim)]"
+                      ? showCorrect
+                        ? "border-[#3ecf8e] bg-[#d8f8e8]"
+                        : "border-[rgba(110,231,197,0.5)] bg-[var(--mint-dim)]"
                       : "border-[var(--border)] hover:border-[var(--border-strong)]"
-                  }`}
+                  } ${showCorrect || showHint ? "pointer-events-none" : ""}`}
                 >
                   <input
                     type="radio"
                     name={`quiz-${q.id}`}
                     checked={selected === i}
                     onChange={() => setSelected(i)}
+                    disabled={showCorrect || showHint}
                     className="mt-0.5 accent-[var(--mint)]"
                   />
                   <span className="text-[var(--text)]">{opt}</span>
@@ -124,7 +128,20 @@ function QuizInner({
             ))}
           </ul>
 
-          {!showHint ? (
+          {showCorrect ? (
+            <div className="space-y-3">
+              <p className="rounded-xl border-2 border-[#3ecf8e] bg-[#d8f8e8] px-3 py-2 text-base font-bold text-[#0d7a52]">
+                Correct! Nice work.
+              </p>
+              <button
+                type="button"
+                onClick={goNext}
+                className="btn-primary rounded-md px-3 py-1.5 text-sm font-medium"
+              >
+                {index + 1 >= questions.length ? "See score" : "Next"}
+              </button>
+            </div>
+          ) : !showHint ? (
             <button
               type="button"
               disabled={selected === null}
@@ -272,13 +289,10 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
   if (events.length === 0) {
     return (
       <section className="panel p-4">
-        <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
-          <ModeBadge mode={mode} size="sm" />
-        </div>
+        <h2 className="mb-2 text-lg font-bold text-[var(--text)]">Practice</h2>
         <p className="text-base text-[var(--text-muted)]">
-          Ask for help at least once first — practice questions come from what
-          confused you.
+          Tap Help once first — then Practice will make questions from
+          the parts that felt tricky. You&apos;ve got this!
         </p>
       </section>
     );
@@ -288,10 +302,7 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
     if (loading) {
       return (
         <section className="panel panel-live p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
-            <ModeBadge mode="live" size="sm" />
-          </div>
+          <h2 className="mb-2 text-lg font-bold text-[var(--text)]">Practice</h2>
           <p className="text-base text-[var(--mint)] motion-safe:animate-[mint-pulse_1.4s_ease-in-out_infinite]">
             Building your practice questions…
           </p>
@@ -301,10 +312,7 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
     if (error) {
       return (
         <section className="panel border-[rgba(240,160,160,0.4)] p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[var(--text)]">Practice</h2>
-            <ModeBadge mode="live" size="sm" />
-          </div>
+          <h2 className="mb-2 text-lg font-bold text-[var(--text)]">Practice</h2>
           <p className="text-base text-[var(--danger)]" role="alert">
             Oops — LIVE AI error: {error}
           </p>
@@ -317,8 +325,8 @@ export function QuizPanel({ events, mode }: QuizPanelProps) {
     if (!liveQuestions || liveQuestions.length === 0) {
       return (
         <section className="panel panel-live p-4">
-          <ModeBadge mode="live" size="sm" />
-          <p className="mt-2 text-sm text-[var(--text-muted)]">No live quiz yet.</p>
+          <h2 className="mb-2 text-lg font-bold text-[var(--text)]">Practice</h2>
+          <p className="text-sm text-[var(--text-muted)]">No live quiz yet.</p>
         </section>
       );
     }

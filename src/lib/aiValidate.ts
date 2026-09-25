@@ -166,8 +166,8 @@ export function parseQuizQuestions(
   if (!isRecord(raw) || !Array.isArray(raw.questions)) {
     throw new Error("Quiz response must include questions array");
   }
-  if (raw.questions.length !== 3) {
-    throw new Error("Quiz must contain exactly 3 questions");
+  if (raw.questions.length < 1 || raw.questions.length > 3) {
+    throw new Error("Quiz must contain 1–3 questions");
   }
 
   return raw.questions.map((q, i) => {
@@ -306,7 +306,7 @@ export const QUIZ_JSON_SCHEMA = {
   properties: {
     questions: {
       type: "array",
-      minItems: 3,
+      minItems: 1,
       maxItems: 3,
       items: {
         type: "object",

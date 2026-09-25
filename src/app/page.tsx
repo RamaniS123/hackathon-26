@@ -6,7 +6,6 @@ import { ExplanationPanel } from "@/components/ExplanationPanel";
 import { GroupTaskCards } from "@/components/GroupTaskCards";
 import { HelpPanel } from "@/components/HelpPanel";
 import { LecturePlayer } from "@/components/LecturePlayer";
-import { ModeBadge } from "@/components/ModeBadge";
 import { QuizPanel } from "@/components/QuizPanel";
 import { ReadingLayers } from "@/components/ReadingLayers";
 import { TeacherSummary } from "@/components/TeacherSummary";
@@ -460,19 +459,28 @@ export default function Home() {
           aria-hidden
         />
         <div className="relative mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="font-display text-3xl font-bold tracking-wide text-[var(--sky)] drop-shadow-[0_2px_0_rgba(255,255,255,0.8)] sm:text-4xl">
-              Bridge<span className="text-[var(--mint)]">It</span>
-            </h1>
-            <p className="mt-1 font-display text-base font-semibold text-[var(--amber)] sm:text-lg">
-              because learning is for everyone
-            </p>
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bridgeit-logo.png"
+              alt=""
+              width={72}
+              height={72}
+              className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-[4.5rem] sm:w-[4.5rem]"
+            />
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl font-bold tracking-wide text-[var(--sky)] drop-shadow-[0_2px_0_rgba(255,255,255,0.8)] sm:text-4xl">
+                Bridge<span className="text-[var(--mint)]">It</span>
+              </h1>
+              <p className="mt-1 font-display text-base font-semibold text-[var(--amber)] sm:text-lg">
+                because learning is for everyone
+              </p>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border-2 border-white bg-[#3b9de0] px-3 py-1.5 text-sm font-extrabold text-white shadow-[0_3px_0_#2a7eb8]">
               Spanish
             </span>
-            <ModeBadge mode={mode} size="sm" />
           </div>
         </div>
       </header>
@@ -520,7 +528,6 @@ export default function Home() {
         {demoOpen && (
           <div className="panel space-y-3 p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <ModeBadge mode={mode} />
               <div className="seg-track flex gap-1 rounded-full p-1" aria-label="Mode">
                 <button
                   type="button"
@@ -554,11 +561,7 @@ export default function Home() {
               </button>
             </div>
             <p className="text-sm text-[var(--text-muted)]">
-              Scripted practice lesson (not a live classroom). Mode:{" "}
-              <strong className="text-[var(--text)]">
-                {mode === "mock" ? "MOCK DEMO" : "LIVE AI"}
-              </strong>
-              .
+              Scripted practice lesson (not a live classroom).
             </p>
             {mode === "live" && liveConfigured === false && (
               <p className="rounded-xl border-2 border-[#ffc94a] bg-[#fff3c4] px-3 py-2 text-sm text-[#b36b00]">

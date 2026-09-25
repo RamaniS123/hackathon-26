@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { DiagramView } from "@/components/DiagramView";
-import { ModeBadge } from "@/components/ModeBadge";
 import type {
   ExplanationTab,
   Mode,
@@ -32,11 +31,9 @@ interface HelpPanelProps {
 
 function HelpTabs({
   activeExplanation,
-  mode,
   onTabChange,
 }: {
   activeExplanation: SavedExplanation;
-  mode: Mode;
   onTabChange?: (tab: ExplanationTab) => void;
 }) {
   const [tab, setTab] = useState<ExplanationTab>(
@@ -51,7 +48,6 @@ function HelpTabs({
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <ModeBadge mode={mode} size="sm" />
         <span className="rounded-full border-2 border-[#ffc94a] bg-[#fff3c4] px-2 py-0.5 text-[10px] font-bold uppercase text-[#b36b00]">
           {activeExplanation.classification}
         </span>
@@ -121,10 +117,7 @@ export function HelpPanel({
 
   return (
     <section className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-[var(--text)]">Need help?</h2>
-        <ModeBadge mode={mode} size="sm" />
-      </div>
+      <h2 className="mb-3 text-lg font-bold text-[var(--text)]">Need help?</h2>
 
       <div className="mb-4 flex flex-wrap gap-3">
         <button
@@ -193,7 +186,6 @@ export function HelpPanel({
         <HelpTabs
           key={explanationKey}
           activeExplanation={activeExplanation}
-          mode={mode}
           onTabChange={onTabChange}
         />
       ) : (

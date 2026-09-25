@@ -1,6 +1,5 @@
 "use client";
 
-import { ModeBadge } from "@/components/ModeBadge";
 import { conceptCounts } from "@/lib/storage";
 import type { ConfusionEvent, Mode } from "@/lib/types";
 
@@ -23,12 +22,9 @@ export function TeacherSummary({ events, mode, onClear }: TeacherSummaryProps) {
         <h2 className="text-lg font-bold text-[var(--text)]">
           Teacher overview
         </h2>
-        <div className="flex items-center gap-2">
-          <ModeBadge mode={mode} size="sm" />
-          <span className="text-xs text-[var(--text-faint)]">
-            {events.length} request{events.length === 1 ? "" : "s"}
-          </span>
-        </div>
+        <span className="text-xs text-[var(--text-faint)]">
+          {events.length} request{events.length === 1 ? "" : "s"}
+        </span>
       </div>
 
       {counts.length === 0 ? (

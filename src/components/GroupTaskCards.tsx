@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ModeBadge } from "@/components/ModeBadge";
 import { LiveAiError, fetchGroupTasks } from "@/lib/aiClient";
 import {
   SAMPLE_GROUP_INSTRUCTIONS,
@@ -64,10 +63,7 @@ export function GroupTaskCards({ mode }: GroupTaskCardsProps) {
 
   return (
     <section className={`panel p-5 sm:p-6 ${mode === "live" ? "panel-live" : ""}`}>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-[var(--text)]">Group tasks</h2>
-        <ModeBadge mode={mode} size="sm" />
-      </div>
+      <h2 className="mb-3 text-lg font-bold text-[var(--text)]">Group tasks</h2>
 
       <p className="mb-4 text-base text-[var(--text-muted)]">
         Paste your teacher&apos;s group instructions. We&apos;ll turn them into

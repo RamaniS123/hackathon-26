@@ -238,15 +238,11 @@ export function buildQuizFromEvents(
       uniqueByConcept.set(e.conceptId, e);
     }
   }
-  const pool = [...uniqueByConcept.values()];
+  const pool = [...uniqueByConcept.values()].slice(0, 3);
 
-  const questions = [];
-  for (let i = 0; i < 3; i++) {
-    const event = pool[i % pool.length];
-    const template =
-      bank[event.conceptId] ??
-      bank.opportunity_cost_def;
-    questions.push({
+  return pool.map((event, i) => {
+    const template = bank[event.conceptId] ?? bank.opportunity_cost_def;
+    return {
       id: `q-${i}-${event.conceptId}`,
       eventId: event.id,
       conceptId: event.conceptId,
@@ -255,9 +251,8 @@ export function buildQuizFromEvents(
       correctIndex: template.correctIndex,
       savedExplanation: event.savedExplanation,
       modeOrigin: "mock" as const,
-    });
-  }
-  return questions;
+    };
+  });
 }
 
 export function resolveConceptId(
