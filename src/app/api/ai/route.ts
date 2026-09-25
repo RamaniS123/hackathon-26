@@ -9,11 +9,17 @@ import {
 } from "@/lib/lesson";
 import {
   CLASS_TO_TAB,
+  GROUP_TASKS_JSON_SCHEMA,
   HELP_JSON_SCHEMA,
+  PARAGRAPH_CONTEXT_JSON_SCHEMA,
   QUIZ_JSON_SCHEMA,
+  READING_LAYERS_JSON_SCHEMA,
   SENTENCE_JSON_SCHEMA,
+  parseGroupTaskPlan,
   parseHelpExplanation,
+  parseParagraphContext,
   parseQuizQuestions,
+  parseReadingLayers,
   parseSentenceExplanation,
 } from "@/lib/aiValidate";
 import type { ConfusionEvent, SavedExplanation } from "@/lib/types";
@@ -114,6 +120,9 @@ export async function POST(req: Request) {
     action !== "explainSentence" &&
     action !== "help" &&
     action !== "quiz" &&
+    action !== "groupTasks" &&
+    action !== "readingLayers" &&
+    action !== "paragraphContext" &&
     action !== "status"
   ) {
     return errorResponse("Unknown action", 400);
@@ -220,7 +229,6 @@ All tab text in Spanish. Do not invent English-only answers.`,
       });
 
       const parsed = parseHelpExplanation(raw);
-      // Enforce classification → initial tab mapping
       const saved: SavedExplanation = {
         ...parsed,
         initialTab: CLASS_TO_TAB[parsed.classification],
@@ -233,6 +241,108 @@ All tab text in Spanish. Do not invent English-only answers.`,
           conceptId: parsed.conceptId,
           savedExplanation: saved,
         },
+      });
+    }
+
+    if (action === "groupTasks") {
+      const { instructions, targetLanguage } = body as {
+        instructions?: string;
+        targetLanguage?: string;
+      };
+      if (!instructions || !instructions.trim()) {
+        return errorResponse("instructions required", 400);
+      }
+
+      const raw = await structuredCompletion(client, {
+        schemaName: "group_task_cards",
+        schema: GROUP_TASKS_JSON_SCHEMA as unknown as Record<string, unknown>,
+        system: `You help middle-school multilingual students understand teacher group-work instructions.
+Rewrite the teacher's English instructions into short ${targetLanguage ?? "Spanish"} task cards.
+Each card needs: stepNumber, title (short), youDo (what THIS student is responsible for), shareWhen (when to share with partner/group/class).
+Also provide activityTitle and yourRole summarizing the student's role.
+Use clear, friendly Spanish suitable for about ages 11–14. Keep 2–6 cards. Do not invent extra tasks that contradict the teacher.`,
+        user: JSON.stringify({
+          teacherInstructions: instructions,
+          targetLanguage: targetLanguage ?? "Spanish",
+        }),
+      });
+
+      const parsed = parseGroupTaskPlan(raw);
+      return NextResponse.json({
+        ok: true,
+        source: "live" as const,
+        data: { ...parsed, modeOrigin: "live" as const },
+      });
+    }
+
+    if (action === "readingLayers") {
+      const { article, targetLanguage } = body as {
+        article?: string;
+        targetLanguage?: string;
+      };
+      if (!article || !article.trim()) {
+        return errorResponse("article required", 400);
+      }
+
+      const raw = await structuredCompletion(client, {
+        schemaName: "reading_layers",
+        schema: READING_LAYERS_JSON_SCHEMA as unknown as Record<string, unknown>,
+        system: `You help middle-school Spanish-speaking students read an English article.
+Split into clear paragraphs (ids p1, p2, ...). Keep original English text faithful.
+For each paragraph provide simpler: a clearer version in ${targetLanguage ?? "Spanish"} that preserves meaning (may keep key English jargon with context).
+Also list keyTerms: important English words/phrases with Spanish definitions.
+Friendly tone for ages ~11–14. Do not answer quiz questions or invent facts beyond the article.`,
+        user: JSON.stringify({
+          article,
+          targetLanguage: targetLanguage ?? "Spanish",
+        }),
+      });
+
+      const parsed = parseReadingLayers(raw);
+      return NextResponse.json({
+        ok: true,
+        source: "live" as const,
+        data: { ...parsed, modeOrigin: "live" as const },
+      });
+    }
+
+    if (action === "paragraphContext") {
+      const {
+        paragraphId,
+        paragraph,
+        articleTitle,
+        surrounding,
+        targetLanguage,
+      } = body as {
+        paragraphId?: string;
+        paragraph?: string;
+        articleTitle?: string;
+        surrounding?: { id: string; original: string }[];
+        targetLanguage?: string;
+      };
+      if (!paragraph || !paragraph.trim()) {
+        return errorResponse("paragraph required", 400);
+      }
+
+      const raw = await structuredCompletion(client, {
+        schemaName: "paragraph_context",
+        schema:
+          PARAGRAPH_CONTEXT_JSON_SCHEMA as unknown as Record<string, unknown>,
+        system: `Explain what this paragraph means in context for a Spanish-speaking middle schooler.
+Reply in ${targetLanguage ?? "Spanish"} only (field: explanation). Be clear and short. Do not translate word-by-word only—explain the idea using nearby paragraphs when helpful.`,
+        user: JSON.stringify({
+          paragraphId: paragraphId ?? null,
+          paragraph,
+          articleTitle: articleTitle ?? null,
+          surrounding: surrounding ?? [],
+        }),
+      });
+
+      const parsed = parseParagraphContext(raw);
+      return NextResponse.json({
+        ok: true,
+        source: "live" as const,
+        data: parsed,
       });
     }
 

@@ -1,6 +1,8 @@
 import type {
   ConfusionEvent,
+  GroupTaskPlan,
   QuizQuestion,
+  ReadingLayersPlan,
   SavedExplanation,
   SentenceExplanationData,
   TranscriptSnapshotItem,
@@ -109,4 +111,51 @@ export async function fetchLiveQuiz(
     signal,
   );
   return data.questions;
+}
+
+export async function fetchGroupTasks(
+  instructions: string,
+  signal?: AbortSignal,
+): Promise<GroupTaskPlan> {
+  return postAi<GroupTaskPlan>(
+    {
+      action: "groupTasks",
+      instructions,
+      targetLanguage: "Spanish",
+    },
+    signal,
+  );
+}
+
+export async function fetchReadingLayers(
+  article: string,
+  signal?: AbortSignal,
+): Promise<ReadingLayersPlan> {
+  return postAi<ReadingLayersPlan>(
+    {
+      action: "readingLayers",
+      article,
+      targetLanguage: "Spanish",
+    },
+    signal,
+  );
+}
+
+export async function fetchParagraphContext(
+  input: {
+    paragraphId: string;
+    paragraph: string;
+    articleTitle: string;
+    surrounding: { id: string; original: string }[];
+  },
+  signal?: AbortSignal,
+): Promise<{ explanation: string }> {
+  return postAi(
+    {
+      action: "paragraphContext",
+      ...input,
+      targetLanguage: "Spanish",
+    },
+    signal,
+  );
 }

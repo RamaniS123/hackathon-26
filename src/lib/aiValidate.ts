@@ -334,3 +334,147 @@ export const QUIZ_JSON_SCHEMA = {
     },
   },
 } as const;
+
+export const GROUP_TASKS_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["activityTitle", "yourRole", "cards"],
+  properties: {
+    activityTitle: { type: "string" },
+    yourRole: { type: "string" },
+    cards: {
+      type: "array",
+      minItems: 2,
+      maxItems: 6,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["stepNumber", "title", "youDo", "shareWhen"],
+        properties: {
+          stepNumber: { type: "integer", minimum: 1 },
+          title: { type: "string" },
+          youDo: { type: "string" },
+          shareWhen: { type: "string" },
+        },
+      },
+    },
+  },
+} as const;
+
+export function parseGroupTaskPlan(raw: unknown): {
+  activityTitle: string;
+  yourRole: string;
+  cards: {
+    stepNumber: number;
+    title: string;
+    youDo: string;
+    shareWhen: string;
+  }[];
+} {
+  if (!isRecord(raw)) throw new Error("Group tasks response must be an object");
+  const activityTitle = asString(raw.activityTitle, "activityTitle");
+  const yourRole = asString(raw.yourRole, "yourRole");
+  if (!Array.isArray(raw.cards) || raw.cards.length < 2) {
+    throw new Error("cards must have at least 2 items");
+  }
+  const cards = raw.cards.map((c, i) => {
+    if (!isRecord(c)) throw new Error(`cards[${i}] invalid`);
+    const stepNumber = c.stepNumber;
+    if (typeof stepNumber !== "number" || !Number.isInteger(stepNumber)) {
+      throw new Error(`cards[${i}].stepNumber must be an integer`);
+    }
+    return {
+      stepNumber,
+      title: asString(c.title, `cards[${i}].title`),
+      youDo: asString(c.youDo, `cards[${i}].youDo`),
+      shareWhen: asString(c.shareWhen, `cards[${i}].shareWhen`),
+    };
+  });
+  return { activityTitle, yourRole, cards };
+}
+
+export const READING_LAYERS_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["title", "paragraphs", "keyTerms"],
+  properties: {
+    title: { type: "string" },
+    paragraphs: {
+      type: "array",
+      minItems: 1,
+      maxItems: 10,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "original", "simpler"],
+        properties: {
+          id: { type: "string" },
+          original: { type: "string" },
+          simpler: { type: "string" },
+        },
+      },
+    },
+    keyTerms: {
+      type: "array",
+      minItems: 1,
+      maxItems: 12,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["english", "spanishDefinition"],
+        properties: {
+          english: { type: "string" },
+          spanishDefinition: { type: "string" },
+        },
+      },
+    },
+  },
+} as const;
+
+export const PARAGRAPH_CONTEXT_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["explanation"],
+  properties: {
+    explanation: { type: "string" },
+  },
+} as const;
+
+export function parseReadingLayers(raw: unknown): {
+  title: string;
+  paragraphs: { id: string; original: string; simpler: string }[];
+  keyTerms: { english: string; spanishDefinition: string }[];
+} {
+  if (!isRecord(raw)) throw new Error("Reading layers must be an object");
+  const title = asString(raw.title, "title");
+  if (!Array.isArray(raw.paragraphs) || raw.paragraphs.length < 1) {
+    throw new Error("paragraphs required");
+  }
+  if (!Array.isArray(raw.keyTerms) || raw.keyTerms.length < 1) {
+    throw new Error("keyTerms required");
+  }
+  const paragraphs = raw.paragraphs.map((p, i) => {
+    if (!isRecord(p)) throw new Error(`paragraphs[${i}] invalid`);
+    return {
+      id: asString(p.id, `paragraphs[${i}].id`),
+      original: asString(p.original, `paragraphs[${i}].original`),
+      simpler: asString(p.simpler, `paragraphs[${i}].simpler`),
+    };
+  });
+  const keyTerms = raw.keyTerms.map((t, i) => {
+    if (!isRecord(t)) throw new Error(`keyTerms[${i}] invalid`);
+    return {
+      english: asString(t.english, `keyTerms[${i}].english`),
+      spanishDefinition: asString(
+        t.spanishDefinition,
+        `keyTerms[${i}].spanishDefinition`,
+      ),
+    };
+  });
+  return { title, paragraphs, keyTerms };
+}
+
+export function parseParagraphContext(raw: unknown): { explanation: string } {
+  if (!isRecord(raw)) throw new Error("Paragraph context must be an object");
+  return { explanation: asString(raw.explanation, "explanation") };
+}

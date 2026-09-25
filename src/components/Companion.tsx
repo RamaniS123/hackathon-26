@@ -1,6 +1,7 @@
 "use client";
 
-import type { CompanionState } from "@/lib/types";
+import { useEffect, useRef, useState } from "react";
+import type { CompanionState, StudentActivity } from "@/lib/types";
 
 const STATE_LABEL: Record<CompanionState, string> = {
   idle: "Idle",
@@ -9,14 +10,39 @@ const STATE_LABEL: Record<CompanionState, string> = {
   charged: "Charged",
 };
 
-/** Original friendly orb companion — corner-mounted, sunny glow. */
+/** Original friendly orb companion — corner-mounted; tap to switch activities. */
 export function Companion({
   state,
   corner = false,
+  activity,
+  onSelectActivity,
 }: {
   state: CompanionState;
   corner?: boolean;
+  activity?: StudentActivity;
+  onSelectActivity?: (next: StudentActivity) => void;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDoc(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
   const glow =
     state === "charged"
       ? "0 0 18px 5px rgba(255, 201, 74, 0.65)"
@@ -52,8 +78,11 @@ export function Companion({
         viewBox="0 0 56 64"
         className={pulseClass}
         style={{ filter: `drop-shadow(${glow})` }}
-        role="img"
-        aria-label={`Companion: ${STATE_LABEL[state]}`}
+        aria-hidden={Boolean(onSelectActivity)}
+        role={onSelectActivity ? undefined : "img"}
+        aria-label={
+          onSelectActivity ? undefined : `Companion: ${STATE_LABEL[state]}`
+        }
       >
         <defs>
           <radialGradient id="orbCoreKid" cx="40%" cy="35%" r="65%">
@@ -119,21 +148,73 @@ export function Companion({
         )}
       </svg>
       <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-faint)]">
-        {STATE_LABEL[state]}
+        {onSelectActivity ? "Menu" : STATE_LABEL[state]}
       </span>
     </div>
   );
 
   if (!corner) return shell;
 
+  const interactive = Boolean(onSelectActivity);
+
   return (
     <div
-      className="pointer-events-none fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6"
-      aria-hidden={false}
+      ref={rootRef}
+      className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6"
     >
-      <div className="pointer-events-auto rounded-3xl border-2 border-[var(--border)] bg-white/95 p-2.5 shadow-[0_4px_0_rgba(59,157,224,0.2)] backdrop-blur-sm">
-        {shell}
-      </div>
+      {menuOpen && onSelectActivity && (
+        <div
+          className="absolute bottom-full right-0 mb-3 min-w-[12rem] rounded-2xl border-2 border-[var(--border)] bg-white p-2 shadow-[0_4px_0_rgba(59,157,224,0.2)]"
+          role="menu"
+          aria-label="Switch activity"
+        >
+          <p className="px-2 pb-1.5 pt-1 text-xs font-bold text-[var(--text-faint)]">
+            Go to…
+          </p>
+          {(
+            [
+              { id: "lesson" as const, label: "Lesson" },
+              { id: "group" as const, label: "Group tasks" },
+              { id: "reading" as const, label: "Reading" },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                onSelectActivity(opt.id);
+                setMenuOpen(false);
+              }}
+              className={`mb-1 flex w-full items-center rounded-xl px-3 py-2.5 text-left text-base font-bold transition last:mb-0 ${
+                activity === opt.id
+                  ? "bg-[var(--mint-dim)] text-[var(--mint)]"
+                  : "text-[var(--text)] hover:bg-[#dff0fb]"
+              }`}
+            >
+              {opt.label}
+              {activity === opt.id ? " ✓" : ""}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {interactive ? (
+        <button
+          type="button"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          aria-label={`Open activity menu. Companion is ${STATE_LABEL[state]}.`}
+          className="rounded-3xl border-2 border-[var(--border)] bg-white/95 p-2.5 shadow-[0_4px_0_rgba(59,157,224,0.2)] backdrop-blur-sm transition hover:brightness-105"
+        >
+          {shell}
+        </button>
+      ) : (
+        <div className="rounded-3xl border-2 border-[var(--border)] bg-white/95 p-2.5 shadow-[0_4px_0_rgba(59,157,224,0.2)] backdrop-blur-sm">
+          {shell}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { LESSON } from "@/lib/lesson";
 import type { Sentence } from "@/lib/types";
 
@@ -31,6 +32,7 @@ export function LecturePlayer({
   onNext,
   onRestart,
 }: LecturePlayerProps) {
+  const [heardOpen, setHeardOpen] = useState(false);
   const done = currentIndex >= LESSON.length;
   const activeIndex =
     currentIndex < 0 ? -1 : Math.min(currentIndex, LESSON.length - 1);
@@ -54,7 +56,7 @@ export function LecturePlayer({
     currentIndex < 0 ? [] : done ? LESSON : LESSON.slice(0, activeIndex + 1);
 
   return (
-    <section className="panel flex h-full min-h-[300px] flex-col p-5 sm:min-h-[340px] sm:p-6">
+    <section className="panel flex flex-col p-5 sm:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-bold text-[var(--text)]">
           Listen to the lesson
@@ -136,32 +138,54 @@ export function LecturePlayer({
         </p>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <p className="mb-2 text-sm font-bold text-[var(--text-muted)]">
-          What you&apos;ve heard so far
-        </p>
-        <ul className="space-y-2">
-          {visible.map((s, i) => {
-            const isCurrent = !done && i === activeIndex;
-            return (
-              <li
-                key={s.id}
-                className={`rounded-xl border-2 px-3 py-2.5 text-base leading-snug ${
-                  isCurrent
-                    ? "border-[rgba(31,170,122,0.45)] bg-[var(--mint-dim)] text-[var(--text)]"
-                    : "border-[var(--border)] bg-white text-[var(--text-muted)]"
-                }`}
-              >
-                {s.english}
+      <div className="rounded-xl border-2 border-[var(--border)] bg-white">
+        <button
+          type="button"
+          onClick={() => setHeardOpen((o) => !o)}
+          aria-expanded={heardOpen}
+          className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+        >
+          <span className="text-sm font-bold text-[var(--text-muted)]">
+            What you&apos;ve heard so far
+            {visible.length > 0 && (
+              <span className="ml-2 font-semibold text-[var(--sky)]">
+                ({visible.length})
+              </span>
+            )}
+          </span>
+          <span
+            className={`text-[var(--text-muted)] transition-transform motion-reduce:transition-none ${
+              heardOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          >
+            ▾
+          </span>
+        </button>
+        {heardOpen && (
+          <ul className="max-h-48 space-y-2 overflow-y-auto border-t-2 border-[var(--border)] px-3 py-3">
+            {visible.map((s, i) => {
+              const isCurrent = !done && i === activeIndex;
+              return (
+                <li
+                  key={s.id}
+                  className={`rounded-xl border-2 px-3 py-2.5 text-base leading-snug ${
+                    isCurrent
+                      ? "border-[rgba(31,170,122,0.45)] bg-[var(--mint-dim)] text-[var(--text)]"
+                      : "border-[var(--border)] bg-[#f7fbf9] text-[var(--text-muted)]"
+                  }`}
+                >
+                  {s.english}
+                </li>
+              );
+            })}
+            {visible.length === 0 && (
+              <li className="text-base text-[var(--text-muted)]">
+                Press Play or Next to start.
               </li>
-            );
-          })}
-          {visible.length === 0 && (
-            <li className="text-base text-[var(--text-muted)]">
-              Press Play or Next to start.
-            </li>
-          )}
-        </ul>
+            )}
+          </ul>
+        )}
       </div>
     </section>
   );

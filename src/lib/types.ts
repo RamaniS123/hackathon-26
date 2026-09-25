@@ -92,3 +92,33 @@ export interface SentenceExplanationData {
   backreferenceSentenceId?: string | null;
   modeOrigin: Mode;
 }
+
+export type StudentActivity = "lesson" | "group" | "reading";
+
+/** One short group-work step for the student (in Spanish) */
+export interface GroupTaskCard {
+  stepNumber: number;
+  title: string;
+  youDo: string;
+  shareWhen: string;
+}
+
+export interface GroupTaskPlan {
+  activityTitle: string;
+  yourRole: string;
+  cards: GroupTaskCard[];
+  modeOrigin: Mode;
+}
+
+export interface ReadingParagraph {
+  id: string;
+  original: string;
+  simpler: string;
+}
+
+export interface ReadingLayersPlan {
+  title: string;
+  paragraphs: ReadingParagraph[];
+  keyTerms: KeyTerm[];
+  modeOrigin: Mode;
+}

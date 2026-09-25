@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Companion } from "@/components/Companion";
 import { ExplanationPanel } from "@/components/ExplanationPanel";
+import { GroupTaskCards } from "@/components/GroupTaskCards";
 import { HelpPanel } from "@/components/HelpPanel";
 import { LecturePlayer } from "@/components/LecturePlayer";
 import { ModeBadge } from "@/components/ModeBadge";
 import { QuizPanel } from "@/components/QuizPanel";
+import { ReadingLayers } from "@/components/ReadingLayers";
 import { TeacherSummary } from "@/components/TeacherSummary";
 import {
   fetchHelpExplanation,
@@ -14,7 +16,7 @@ import {
   fetchSentenceExplanation,
   LiveAiError,
 } from "@/lib/aiClient";
-import { LESSON, LESSON_TITLE, getRollingTranscript } from "@/lib/lesson";
+import { LESSON, getRollingTranscript } from "@/lib/lesson";
 import {
   buildMockExplanation,
   freezeTranscript,
@@ -28,6 +30,7 @@ import type {
   Mode,
   SavedExplanation,
   SentenceExplanationData,
+  StudentActivity,
   TranscriptSnapshotItem,
 } from "@/lib/types";
 
@@ -35,6 +38,7 @@ export default function Home() {
   const [view, setView] = useState<AppView>("student");
   const [mode, setMode] = useState<Mode>("mock");
   const [liveConfigured, setLiveConfigured] = useState<boolean | null>(null);
+  const [activity, setActivity] = useState<StudentActivity>("lesson");
   const [studentStep, setStudentStep] = useState<
     "listen" | "help" | "quiz"
   >("listen");
@@ -259,6 +263,7 @@ export default function Home() {
     setEventsByMode({ mock: [], live: [] });
     setMode("mock");
     setView("student");
+    setActivity("lesson");
     setStudentStep("listen");
     setDemoOpen(false);
     setPlaying(false);
@@ -432,20 +437,39 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-full flex-1 flex-col text-[var(--text)]">
-      <Companion state={companionState} corner />
+      <Companion
+        state={companionState}
+        corner
+        activity={activity}
+        onSelectActivity={
+          view === "student"
+            ? (next) => {
+                setActivity(next);
+              }
+            : undefined
+        }
+      />
 
-      <header className="border-b-2 border-[var(--border)] bg-white/90 px-3 py-4 backdrop-blur-sm sm:px-4">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
+      <header className="relative overflow-hidden border-b-4 border-[#7ec8f0] bg-gradient-to-r from-[#fff6c8] via-[#e8f8ff] to-[#d8f8e8] px-3 py-5 sm:px-4">
+        <div
+          className="pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full bg-[#ffc94a]/40"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-10 left-8 h-24 w-24 rounded-full bg-[#7ad4b0]/35"
+          aria-hidden
+        />
+        <div className="relative mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
-              BridgeIt
+            <h1 className="font-display text-3xl font-bold tracking-wide text-[var(--sky)] drop-shadow-[0_2px_0_rgba(255,255,255,0.8)] sm:text-4xl">
+              Bridge<span className="text-[var(--mint)]">It</span>
             </h1>
-            <p className="text-base font-medium text-[var(--text-muted)]">
-              {LESSON_TITLE}
+            <p className="mt-1 font-display text-base font-semibold text-[var(--amber)] sm:text-lg">
+              because learning is for everyone
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border-2 border-[var(--border-strong)] bg-[#dff0fb] px-3 py-1.5 text-sm font-bold text-[var(--sky)]">
+            <span className="rounded-full border-2 border-white bg-[#3b9de0] px-3 py-1.5 text-sm font-extrabold text-white shadow-[0_3px_0_#2a7eb8]">
               Spanish
             </span>
             <ModeBadge mode={mode} size="sm" />
@@ -552,119 +576,131 @@ export default function Home() {
 
         {view === "student" ? (
           <>
-            <nav
-              className="seg-track grid grid-cols-3 gap-1 rounded-2xl p-1.5"
-              aria-label="Student steps"
-            >
-              {(
-                [
-                  { id: "listen" as const, label: "1. Listen" },
-                  { id: "help" as const, label: "2. Help" },
-                  { id: "quiz" as const, label: "3. Practice" },
-                ] as const
-              ).map((step) => (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => setStudentStep(step.id)}
-                  className={`rounded-xl px-2 py-2.5 text-sm font-bold transition sm:text-base ${
-                    studentStep === step.id
-                      ? "seg-active"
-                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                  }`}
+            {activity === "group" ? (
+              <GroupTaskCards mode={mode} />
+            ) : activity === "reading" ? (
+              <ReadingLayers mode={mode} />
+            ) : (
+              <>
+                <nav
+                  className="seg-track grid grid-cols-3 gap-1 rounded-2xl p-1.5"
+                  aria-label="Lesson steps"
                 >
-                  {step.label}
-                </button>
-              ))}
-            </nav>
+                  {(
+                    [
+                      { id: "listen" as const, label: "1. Listen" },
+                      { id: "help" as const, label: "2. Help" },
+                      { id: "quiz" as const, label: "3. Practice" },
+                    ] as const
+                  ).map((step) => (
+                    <button
+                      key={step.id}
+                      type="button"
+                      onClick={() => setStudentStep(step.id)}
+                      className={`rounded-xl px-2 py-2.5 text-sm font-bold transition sm:text-base ${
+                        studentStep === step.id
+                          ? "seg-active"
+                          : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      {step.label}
+                    </button>
+                  ))}
+                </nav>
 
-            {studentStep === "listen" && (
-              <div className="flex flex-col gap-4">
-                <LecturePlayer
-                  currentIndex={currentIndex}
-                  playing={playing}
-                  elapsedInSentence={elapsedInSentence}
-                  helpLocked={helpLocked}
-                  onPlay={handlePlay}
-                  onPause={handlePause}
-                  onNext={handleNext}
-                  onRestart={handleRestart}
-                />
-                <ExplanationPanel
-                  sentence={currentIndex < 0 ? null : currentSentence}
-                  mode={mode}
-                  liveData={liveSentenceData}
-                  loading={mode === "live" && explainLoading}
-                  error={mode === "live" ? explainError : null}
-                />
-                <button
-                  type="button"
-                  onClick={() => setStudentStep("help")}
-                  className="btn-primary rounded-xl px-5 py-3 text-base"
-                >
-                  Need help? Continue →
-                </button>
-              </div>
-            )}
-
-            {studentStep === "help" && (
-              <div className="flex flex-col gap-4">
-                <HelpPanel
-                  mode={mode}
-                  canRequest={currentIndex >= 0 && !helpLoading && !helpBusy}
-                  loading={helpLoading}
-                  error={helpError}
-                  activeExplanation={activeExplanation}
-                  frozenSnapshot={frozenSnapshot}
-                  explanationKey={
-                    events.length > 0 ? events[events.length - 1].id : "none"
-                  }
-                  onConfused={() => {
-                    setCompanionOverride("listening");
-                    submitHelp("confused");
-                  }}
-                  onAsk={(q) => {
-                    setCompanionOverride("listening");
-                    submitHelp("question", q);
-                  }}
-                  onTabChange={() => setCompanionOverride("reacting")}
-                />
-                {currentIndex < 0 && (
-                  <p className="rounded-2xl border-2 border-[#ffc94a] bg-[#fff3c4] px-4 py-3 text-base text-[#b36b00]">
-                    Start on <strong>Listen</strong> first, then come back here
-                    if something is confusing.
-                  </p>
+                {studentStep === "listen" && (
+                  <div className="flex flex-col gap-4">
+                    <LecturePlayer
+                      currentIndex={currentIndex}
+                      playing={playing}
+                      elapsedInSentence={elapsedInSentence}
+                      helpLocked={helpLocked}
+                      onPlay={handlePlay}
+                      onPause={handlePause}
+                      onNext={handleNext}
+                      onRestart={handleRestart}
+                    />
+                    <ExplanationPanel
+                      sentence={currentIndex < 0 ? null : currentSentence}
+                      mode={mode}
+                      liveData={liveSentenceData}
+                      loading={mode === "live" && explainLoading}
+                      error={mode === "live" ? explainError : null}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setStudentStep("help")}
+                      className="btn-primary rounded-xl px-5 py-3 text-base"
+                    >
+                      Need help? Continue →
+                    </button>
+                  </div>
                 )}
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setStudentStep("listen")}
-                    className="btn-secondary rounded-xl px-5 py-3 text-base"
-                  >
-                    ← Back to Listen
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStudentStep("quiz")}
-                    className="btn-primary rounded-xl px-5 py-3 text-base"
-                  >
-                    Practice what you learned →
-                  </button>
-                </div>
-              </div>
-            )}
 
-            {studentStep === "quiz" && (
-              <div className="flex flex-col gap-4">
-                <QuizPanel events={events} mode={mode} />
-                <button
-                  type="button"
-                  onClick={() => setStudentStep("help")}
-                  className="btn-secondary rounded-xl px-5 py-3 text-base"
-                >
-                  ← Back to Help
-                </button>
-              </div>
+                {studentStep === "help" && (
+                  <div className="flex flex-col gap-4">
+                    <HelpPanel
+                      mode={mode}
+                      canRequest={
+                        currentIndex >= 0 && !helpLoading && !helpBusy
+                      }
+                      loading={helpLoading}
+                      error={helpError}
+                      activeExplanation={activeExplanation}
+                      frozenSnapshot={frozenSnapshot}
+                      explanationKey={
+                        events.length > 0
+                          ? events[events.length - 1].id
+                          : "none"
+                      }
+                      onConfused={() => {
+                        setCompanionOverride("listening");
+                        submitHelp("confused");
+                      }}
+                      onAsk={(q) => {
+                        setCompanionOverride("listening");
+                        submitHelp("question", q);
+                      }}
+                      onTabChange={() => setCompanionOverride("reacting")}
+                    />
+                    {currentIndex < 0 && (
+                      <p className="rounded-2xl border-2 border-[#ffc94a] bg-[#fff3c4] px-4 py-3 text-base text-[#b36b00]">
+                        Start on <strong>Listen</strong> first, then come back
+                        here if something is confusing.
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStudentStep("listen")}
+                        className="btn-secondary rounded-xl px-5 py-3 text-base"
+                      >
+                        ← Back to Listen
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setStudentStep("quiz")}
+                        className="btn-primary rounded-xl px-5 py-3 text-base"
+                      >
+                        Practice what you learned →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {studentStep === "quiz" && (
+                  <div className="flex flex-col gap-4">
+                    <QuizPanel events={events} mode={mode} />
+                    <button
+                      type="button"
+                      onClick={() => setStudentStep("help")}
+                      className="btn-secondary rounded-xl px-5 py-3 text-base"
+                    >
+                      ← Back to Help
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         ) : (
